@@ -12,8 +12,8 @@ To set up this scenario I have created a working topology using 6 IOSv devices.
 
 ![topology](images/same-as.png)
 
-R1 is able to peer with R5 using the AS 65400, which is the same as R4. R1 knows
-about all the BGP prefixes except for R4's loopback address, `192.168.4.4`. 
+R1 is able to peer with R5 using the AS 65400, which is the same autonomous
+system as R4. R1 knows about most of the BGP prefixes except for R4's loopback address, `192.168.4.4`. 
 
 `show bgp` on R1
 ```
