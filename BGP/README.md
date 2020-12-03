@@ -12,6 +12,9 @@ To set this scenario up I have created a working topology using 4 IOSv devices.
 
 ![topology](images/topology.png)
 
+The samples below show BGP operating in a typical fashion allowing R1 to reach
+R4's loopback address. 
+
 show ip route
 ```
       10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
@@ -22,12 +25,14 @@ C        192.168.1.1 is directly connected, Loopback0
       192.168.4.0/32 is subnetted, 1 subnets
 B        192.168.4.4 [20/0] via 10.12.1.2, 00:06:13
 ```
+
 show bgp
 ```
      Network          Next Hop            Metric LocPrf Weight Path
  *>   192.168.1.1/32   0.0.0.0                  0         32768 i
  *>   192.168.4.4/32   10.12.1.2                              0 65200 65400 i
  ```
+ 
 traceroute to R4
 ```
 rtr1#traceroute 192.168.4.4 source l0
@@ -38,6 +43,7 @@ VRF info: (vrf in name/id, vrf out name/id)
   2 10.23.1.3 5 msec 5 msec 7 msec
   3 10.34.1.4 7 msec *  7 msec
 ```
+
 ping to R4
 ```
 rtr1#ping 192.168.4.4 source l0
@@ -50,7 +56,8 @@ rtr1#
 ```
 
 ### Test Case 1
-Update R1 to 65400
+To see if 2 sites can advertise the same ASN I will be replacing R1's AS of
+65100 with R4's AS of 65400. 
 ```
 rtr1(config)#router bgp 65400
 rtr1(config-router)#network 192.168.1.1 mask 255.255.255.255
@@ -58,12 +65,24 @@ rtr1(config-router)#neighbor 10.12.1.2 remote-as 65200
 ```
 
 ### Results 
-BGP Notification on R2
+A few seconds later after updating R1 I saw R2 send out a BGP notification.
 ```
 *Dec  3 02:08:59.528: %BGP-3-NOTIFICATION: sent to neighbor 10.12.1.1 passive 2/2 (peer in wrong AS) 2 bytes FF78
 ```
 
-BGP Notification on R1
+R1 received the the notification as well so I started to dig more. I watched the
+R1 attempt to peer with R2 using `debug ip bgp`. 
+```
+*Dec  3 02:09:58.414: BGP: 10.12.1.2 passive went from Idle to Connect
+*Dec  3 02:09:58.437: BGP: 10.12.1.2 passive OPEN has 4-byte ASN CAP for: 65200
+*Dec  3 02:09:58.438: BGP: 10.12.1.2 passive rcvd OPEN w/ remote AS 65200, 4-byte remote AS 65200
+*Dec  3 02:09:58.442: BGP: 10.12.1.2 passive went from Connect to OpenSent
+*Dec  3 02:09:58.444: BGP: 10.12.1.2 passive went from OpenSent to OpenConfirm
+*Dec  3 02:09:58.463: BGP: 10.12.1.2 passive went from OpenConfirm to Closing
+```
+
+The key take away from these log messages is that BGP is recognizing a known
+AS coming from a different source and is preventing a peering relationship.
 ```
 *Dec  3 02:09:00.808: %BGP-3-NOTIFICATION: received from neighbor 10.12.1.2 active 2/2 (peer in wrong AS) 2 bytes FF78
 *Dec  3 02:09:00.809: %BGP-5-NBR_RESET: Neighbor 10.12.1.2 active reset (BGP Notification received)
@@ -72,9 +91,13 @@ BGP Notification on R1
 topology base removed from session  BGP Notification receivedrouter bgp 65400
 ```
 
+
 ## Topology 2
-I wanted to see if this would still be the case if there were multiple AS's
-between the remote sites. 
+I wanted to see if this I could produce a different outcome if I increased the
+number of AS's involved. I expanded from the previous topology and added 2 more
+IOSv devices and connected them using eBGP. 
+
+This test shows that R1 can reach R4 again when R1's AS is a unique value. 
 
 ![topology2](images/topology2.png)
 
@@ -119,10 +142,10 @@ Packet sent with a source address of 192.168.1.1
 ```
 
 ### Test Case 2 
-Replace AS 65100 with AS 65400 again using the expanded topology. 
+I replaced R1's AS of 65100 with R4's AS of 65400 using the expanded topology. 
 
 ### Results 
-The test case produces the same result from previous topology. 
+The test case produced the same result from previous topology. 
 ```
 *Dec  3 04:34:11.887: %BGP-3-NOTIFICATION: received from neighbor 10.15.1.5 passive 2/2 (peer in wrong AS) 2 bytes FF78
 ```
