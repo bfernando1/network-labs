@@ -1,4 +1,4 @@
-# Connecting remote sites using the same AS via eBGP
+# Connecting Multiple Sites using the same AS 
 
 I was recently asked if it was possible to have 2 remote sites establish a eBGP
 connection over the internet using the same AS. Off the top of my head I wasn't 
