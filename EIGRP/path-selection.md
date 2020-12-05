@@ -12,8 +12,8 @@ D        5.5.5.5 [90/131072] via 10.23.1.3, 00:00:07, GigabitEthernet0/1
 ![eigrp-topology](images/eigrp-path.png)
 
 Here is a more detailed output from R2. I want to highlight that: 
-    * The neighbors were brought up at the same time
-    * Maximum paths is set to 4 (default)
+* The neighbors were brought up at the same time
+* Maximum paths is set to 4 (default)
 ```
 R2(config-router)#do sh ip route 5.5.5.5
 Routing entry for 5.5.5.5/32
@@ -72,7 +72,7 @@ Routing Protocol is "eigrp 1"
       Maximum metric variance 1
 ```
 
-show ip route eigrp 
+show ip route eigrp on R2
 ```
       5.0.0.0/32 is subnetted, 1 subnets
 D        5.5.5.5 [90/131072] via 10.12.1.1, 00:03:25, GigabitEthernet0/0
@@ -84,8 +84,8 @@ D        10.35.1.0/24 [90/3072] via 10.23.1.3, 00:03:25, GigabitEthernet0/1
 Here we see that R2 selected the lower IP and goes through R1. 
 
 ### Age of Neighbor 
-For this next section I wanted to any premption like neighbor age will 
-disrupt EIGRP selecting the lowest IP. 
+For this next section I wanted to test for any premption. Should neighbor age 
+disrupts EIGRP from selecting the lowest IP. 
 
 Let's start by forcing R2 to use R3 by shutting R1's g0/0 interface down. 
 ```
@@ -104,8 +104,7 @@ D        5.5.5.5 [90/131072] via 10.23.1.3, 00:00:29, GigabitEthernet0/1
 ```
 
 Let's bring up R1's neighborship again with R2. When we do this, R3 will be
-the older neighbor. R2 should not use R1 as it's path to 5.5.5.5/32 or that
-would be very disruptive. 
+the older neighbor. R2 should *not* use R1 as it's path to 5.5.5.5/32. 
 
 Neighborship is established between R1 and R2
 ```
