@@ -91,3 +91,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 10/11/12 ms
 ## Conclusion
 If I wanted to avoid a call with my service provider I'd definitly use `allowas-in` 
 as my work around to BGP's loop prevention mechanism. 
+
+
+## References
+https://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/112236-allowas-in-bgp-config-example.html
